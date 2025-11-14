@@ -1,0 +1,38 @@
+name: product_audit_tool
+description: A Flutter application for auditing supermarket products with barcode scanning and photo tagging.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # State Management
+  flutter_riverpod: ^2.4.9
+  
+  # Camera & Image
+  camera: ^0.10.5+5
+  image_picker: ^1.0.5
+  
+  # Barcode Scanning
+  mobile_scanner: ^5.0.0
+  
+  # Storage
+  shared_preferences: ^2.2.2
+  path_provider: ^2.1.1
+  
+  # Utilities
+  equatable: ^2.0.5
+  path: ^1.8.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+
