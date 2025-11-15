@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../application/tags/tag_suggestions_notifier.dart';
+import '../../core/providers.dart';
 
 /// Widget that provides autocomplete for tag input
 class TagAutocompleteInput extends ConsumerStatefulWidget {

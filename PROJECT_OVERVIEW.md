@@ -28,11 +28,15 @@ No authentication required initially.
 ## Naming Convention
 Format:
 
-{barcode}{index}{tag1}-{tag2}-{tag3}.jpg
+{barcode}_{index}_{tag1}-{tag2}-{tag3}.jpg
 
+- Components are separated by underscores (`_`)
+- Barcode is sanitized (invalid filesystem characters removed)
 - Index is 3-digit padded (001, 002…)
 - Tags are sanitized (lowercase, hyphens)
 - If no tags → `no-tags`
+
+Example: `123456_001_front-side.jpg`
 
 ---
 

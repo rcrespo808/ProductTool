@@ -6,7 +6,6 @@ import '../util/result.dart';
 /// Implementation of BarcodeScannerService using mobile_scanner
 class BarcodeScannerImpl implements BarcodeScannerService {
   MobileScannerController? _controller;
-  StreamSubscription<BarcodeCapture>? _subscription;
   final _barcodeController = StreamController<Result<String>>();
   bool _isScanning = false;
 
@@ -21,23 +20,17 @@ class BarcodeScannerImpl implements BarcodeScannerService {
       facing: CameraFacing.back,
     );
 
-    _subscription = _controller!.barcodeCapture.listen((capture) {
-      final barcodes = capture.barcodes;
-      if (barcodes.isNotEmpty) {
-        final barcode = barcodes.first;
-        if (barcode.rawValue != null) {
-          _barcodeController.add(Success(barcode.rawValue!));
-        }
-      }
-    });
-
+    // Note: In mobile_scanner 5.x, barcode detection is handled via MobileScanner widget's onDetect callback
+    // This service provides a stream interface, but the actual scanning UI uses MobileScanner widget directly
+    // For now, return an empty stream that can be used if needed
+    // The barcode scanning is handled in barcode_scan_screen_mobile.dart using MobileScanner widget
+    
     _isScanning = true;
     return _barcodeController.stream;
   }
 
   @override
   void stopScanning() {
-    _subscription?.cancel();
     _controller?.dispose();
     _controller = null;
     _isScanning = false;

@@ -36,13 +36,32 @@ Get-ChildItem -Path "C:\" -Filter "flutter" -Recurse -Directory -ErrorAction Sil
    ```
 
 3. **Add to PATH:**
+
+   **Option A: Using PowerShell (Current Session)**
    ```powershell
    # Temporarily (for current session)
    $env:Path += ";C:\src\flutter\bin"
    
-   # Permanently (requires admin)
+   # Verify it works
+   flutter --version
+   ```
+
+   **Option B: Permanent Setup (Recommended)**
+   
+   Using PowerShell (as Administrator):
+   ```powershell
+   # Permanently (replace C:\src\flutter with your actual Flutter path)
    [Environment]::SetEnvironmentVariable("Path", $env:Path + ";C:\src\flutter\bin", "User")
    ```
+   
+   Or use GUI:
+   1. Press `Win + X` → System
+   2. Click "Advanced system settings"
+   3. Click "Environment Variables"
+   4. Under "User variables", select "Path" → Edit
+   5. Click "New" → Add `C:\src\flutter\bin` (replace with your path)
+   6. Click OK on all dialogs
+   7. **Restart your terminal/PowerShell**
 
 4. **Verify Installation:**
    ```powershell
@@ -148,16 +167,33 @@ Once Flutter is working:
 
 ## Troubleshooting
 
-**Issue: "Flutter not found"**
-- Install Flutter or add it to PATH
-- Use full path to flutter.exe
+### "Flutter not recognized"
 
-**Issue: "Web not enabled"**
+- Make sure you added Flutter to PATH
+- **Restart your terminal/PowerShell** after adding to PATH
+- Verify the path is correct: `C:\src\flutter\bin\flutter.exe` should exist
+
+### "Web support not enabled"
+
 ```powershell
 flutter config --enable-web
 ```
 
-**Issue: "Chrome not found"**
-- Install Chrome browser
+### "Chrome not found"
+
+- Install Google Chrome browser
 - Or use: `flutter run -d web-server --web-port 8080`
+
+### "Doctor shows issues"
+
+Run `flutter doctor` and follow the recommendations:
+
+```powershell
+flutter doctor
+```
+
+Common fixes:
+- Install Android Studio (for Android development)
+- Install Chrome (for web development)
+- Accept Android licenses: `flutter doctor --android-licenses`
 

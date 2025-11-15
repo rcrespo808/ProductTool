@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/providers.dart';
-import '../../application/audit/audit_session_notifier.dart';
 import 'tag_capture_screen.dart';
 
 // Import mobile implementation only on non-web platforms

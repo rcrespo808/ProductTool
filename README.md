@@ -15,7 +15,12 @@ This tool enables field auditors to:
 
 - **[PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md)** - Project purpose, workflow, and constraints
 - **[TECH_STRUCTURE.md](TECH_STRUCTURE.md)** - Architecture, folder structure, and abstractions
-- **[IMPLEMENTATION_CHECKLIST.md](IMPLEMENTATION_CHECKLIST.md)** - Step-by-step implementation guide
+- **[IMPLEMENTATION_CHECKLIST.md](IMPLEMENTATION_CHECKLIST.md)** - Implementation status and checklist
+- **[SETUP_GUIDE.md](SETUP_GUIDE.md)** - Detailed setup instructions for mobile platforms
+- **[SETUP_FLUTTER.md](SETUP_FLUTTER.md)** - Flutter installation guide for Windows
+- **[WEB.md](WEB.md)** - Web platform support and testing
+- **[QUICK_START.md](QUICK_START.md)** - Quick start guide (5 minutes)
+- **[MANUAL_TESTING.md](MANUAL_TESTING.md)** - Manual testing guide
 - **[TEST_PLAN.md](TEST_PLAN.md)** - Testing strategy and requirements
 
 ## Quick Start
@@ -26,16 +31,18 @@ This tool enables field auditors to:
 - Android Studio / VS Code with Flutter extensions
 
 ### Setup
-1. Clone the repository
-2. Run `flutter pub get` to install dependencies
-3. Run `flutter create .` if `android/` and `ios/` folders don't exist
-4. Add camera and storage permissions (see [SETUP_GUIDE.md](SETUP_GUIDE.md))
-5. Run `flutter run` to launch the app
+1. **Install Flutter** (if needed): See [SETUP_FLUTTER.md](SETUP_FLUTTER.md)
+2. **Install dependencies**: `flutter pub get`
+3. **Create platform folders** (if needed): `flutter create .`
+4. **Configure permissions**: See [SETUP_GUIDE.md](SETUP_GUIDE.md) for Android/iOS
+5. **Run the app**: `flutter run` (mobile) or `flutter run -d chrome` (web)
 
-For detailed setup instructions, see [SETUP_GUIDE.md](SETUP_GUIDE.md) or [QUICK_START.md](QUICK_START.md)
+For detailed setup instructions, see [SETUP_GUIDE.md](SETUP_GUIDE.md) or [QUICK_START.md](QUICK_START.md).  
+For web setup, see [WEB.md](WEB.md).
 
-### Manual Testing
-See [MANUAL_TESTING.md](MANUAL_TESTING.md) for comprehensive testing guide.
+### Testing
+- **Manual Testing**: See [MANUAL_TESTING.md](MANUAL_TESTING.md) for comprehensive test scenarios
+- **Test Plan**: See [TEST_PLAN.md](TEST_PLAN.md) for testing strategy
 
 ### Key Features
 - **Barcode Scanning**: Real-time barcode detection using camera
@@ -48,11 +55,23 @@ See [MANUAL_TESTING.md](MANUAL_TESTING.md) for comprehensive testing guide.
 
 See [TECH_STRUCTURE.md](TECH_STRUCTURE.md) for detailed architecture.
 
-## Development Workflow
+## Implementation Status
 
-Refer to `.cursor/commands/code.md` for the development workflow, which includes:
-1. **DRY-RUN**: Review docs, audit code, propose plan
-2. **APPLY**: Implement changes following the documented architecture
+✅ **Iteration 1 Complete** - All core features implemented:
+- Mobile support (Android/iOS) with barcode scanning
+- Web support with manual barcode entry
+- Tag trie system with persistence
+- Photo capture and tagging
+- Session management
+
+See [IMPLEMENTATION_CHECKLIST.md](IMPLEMENTATION_CHECKLIST.md) for detailed status.
+
+## Platform Support
+
+- **Mobile (Android/iOS)**: Full feature support with camera-based barcode scanning
+- **Web**: Manual barcode entry, file picker for photos, tag system works fully
+
+See [WEB.md](WEB.md) for web platform details and limitations.
 
 ## License
 

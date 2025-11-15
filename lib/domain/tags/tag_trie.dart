@@ -60,10 +60,10 @@ class TagTrie {
     TrieNode? current = root;
     for (final char in sanitized.runes) {
       final charStr = String.fromCharCode(char);
-      current = current.children[charStr];
+      current = current?.children[charStr];
       if (current == null) return 0;
     }
-    return current.isEndOfWord ? current.usageCount : 0;
+    return (current != null && current.isEndOfWord) ? current.usageCount : 0;
   }
 
   /// Suggests tags that match the given prefix
@@ -75,13 +75,15 @@ class TagTrie {
     // Navigate to the prefix node
     for (final char in sanitized.runes) {
       final charStr = String.fromCharCode(char);
-      current = current.children[charStr];
+      current = current?.children[charStr];
       if (current == null) return [];
     }
 
     // Collect all words from this node
     final suggestions = <({String tag, int usageCount})>[];
-    _collectWords(current!, sanitized, suggestions);
+    if (current != null) {
+      _collectWords(current, sanitized, suggestions);
+    }
     suggestions.sort((a, b) => b.usageCount.compareTo(a.usageCount));
     return suggestions;
   }

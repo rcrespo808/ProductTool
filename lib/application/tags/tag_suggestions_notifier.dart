@@ -27,17 +27,25 @@ class TagSuggestionsNotifier extends StateNotifier<TagSuggestionsState> {
 
   TagSuggestionsNotifier(this._tagRepository)
       : super(const TagSuggestionsState()) {
-    // Load initial suggestions (most common tags)
+    // Load initial suggestions (most common tags) asynchronously
     updateQuery('');
   }
 
-  /// Updates the search query and fetches suggestions
+  /// Updates the search query and fetches suggestions asynchronously
   void updateQuery(String query) {
-    final suggestions = _tagRepository.suggest(query);
-    state = state.copyWith(
-      query: query,
-      suggestions: suggestions,
-    );
+    // Update query immediately for responsive UI
+    state = state.copyWith(query: query);
+    
+    // Fetch suggestions asynchronously
+    _tagRepository.suggest(query).then((suggestions) {
+      // Only update if query hasn't changed (avoid race conditions)
+      if (state.query == query) {
+        state = state.copyWith(suggestions: suggestions);
+      }
+    }).catchError((error) {
+      // Handle errors silently, or could log in production
+      // Keep current suggestions on error
+    });
   }
 
   /// Clears the query and shows all tags

@@ -135,7 +135,8 @@ Fix any issues before testing.
 
 ## Testing Checklist
 
-See [MANUAL_TESTING.md](MANUAL_TESTING.md) for detailed test scenarios.
+See [MANUAL_TESTING.md](MANUAL_TESTING.md) for detailed test scenarios.  
+See [TEST_PLAN.md](TEST_PLAN.md) for testing strategy.
 
 Quick test:
 1. Launch app → Should show HomeScreen
@@ -180,7 +181,8 @@ After setup:
 1. Follow [MANUAL_TESTING.md](MANUAL_TESTING.md) for comprehensive testing
 2. Document any bugs or issues found
 3. Review [TEST_PLAN.md](TEST_PLAN.md) for automated test scenarios
-4. Plan phase 2 features (review screen, backend upload)
+4. For web testing, see [WEB.md](WEB.md)
+5. Plan phase 2 features (review screen, backend upload)
 
 ## Resources
 

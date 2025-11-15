@@ -180,7 +180,7 @@ This document provides a step-by-step guide for manually testing the Product Aud
 ## Known Limitations
 
 1. **iOS**: Not fully tested (may need additional permissions setup)
-2. **Web**: Not supported (camera and file system requirements)
+2. **Web**: Supported with manual barcode entry (see [WEB.md](../WEB.md) for details)
 3. **Backend Upload**: Fake implementation (no actual server upload)
 4. **Review Screen**: Not implemented yet (phase 2 feature)
 
@@ -232,6 +232,7 @@ This document provides a step-by-step guide for manually testing the Product Aud
 1. Document any bugs or issues found
 2. Test edge cases (empty inputs, very long tags, special characters)
 3. Performance testing (many photos, many tags)
-4. Begin implementing tests from TEST_PLAN.md
-5. Plan for phase 2 features (review screen, backend upload)
+4. Begin implementing tests from [TEST_PLAN.md](TEST_PLAN.md)
+5. For web testing, see [WEB.md](../WEB.md)
+6. Plan for phase 2 features (review screen, backend upload)
 

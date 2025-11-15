@@ -78,4 +78,5 @@ flutter run
 
 - See [MANUAL_TESTING.md](MANUAL_TESTING.md) for comprehensive testing
 - See [SETUP_GUIDE.md](SETUP_GUIDE.md) for detailed setup instructions
+- For web setup and testing, see [WEB.md](WEB.md)
 

@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'dart:typed_data';
+import 'package:image_picker/image_picker.dart';
 import '../../domain/models/audit_session.dart';
 import '../../domain/models/audit_image.dart';
 import '../../domain/models/file_naming.dart';
@@ -51,6 +51,48 @@ class AuditSessionNotifier extends StateNotifier<AuditSessionState> {
     this._apiClient,
   ) : super(const AuditSessionState());
 
+  /// Extracts file extension from XFile
+  /// Falls back to 'jpg' if extraction fails
+  String _getFileExtension(XFile file) {
+    final path = file.path;
+    
+    // Try to extract from path
+    if (path.contains('.')) {
+      final parts = path.split('.');
+      if (parts.length > 1) {
+        final ext = parts.last.toLowerCase();
+        // Validate common image extensions
+        if (['jpg', 'jpeg', 'png', 'webp', 'gif'].contains(ext)) {
+          return ext == 'jpeg' ? 'jpg' : ext; // Normalize jpeg to jpg
+        }
+      }
+    }
+    
+    // Fallback to mimeType if available
+    try {
+      final mimeType = file.mimeType;
+      if (mimeType != null) {
+        if (mimeType.contains('jpeg') || mimeType.contains('jpg')) {
+          return 'jpg';
+        }
+        if (mimeType.contains('png')) {
+          return 'png';
+        }
+        if (mimeType.contains('webp')) {
+          return 'webp';
+        }
+        if (mimeType.contains('gif')) {
+          return 'gif';
+        }
+      }
+    } catch (_) {
+      // If mimeType access fails, continue to default
+    }
+    
+    // Default to jpg if all else fails
+    return 'jpg';
+  }
+
   /// Starts a new audit session with a barcode
   void startSession(String barcode) {
     if (barcode.trim().isEmpty) {
@@ -88,14 +130,24 @@ class AuditSessionNotifier extends StateNotifier<AuditSessionState> {
       final photoFile = photoResult.valueOrNull!;
       final photoBytes = await photoFile.readAsBytes();
 
-      // 2. Generate file name
+      // 2. Extract file extension from photo file
+      final extension = _getFileExtension(photoFile);
+
+      // 3. Normalize tags for file naming (will also be used for storage)
+      final normalizedTags = tags
+          .map((tag) => FileNaming.normalizeTag(tag))
+          .where((tag) => tag.isNotEmpty)
+          .toList();
+
+      // 4. Generate file name
       final fileName = FileNaming.generateFileName(
         barcode: state.session!.barcode,
         index: state.session!.imageCount,
-        tags: tags,
+        tags: normalizedTags,
+        extension: extension,
       );
 
-      // 3. Save image to local storage
+      // 5. Save image to local storage
       final saveResult = await _storageService.saveImageBytes(
         photoBytes,
         fileName: fileName,
@@ -111,19 +163,25 @@ class AuditSessionNotifier extends StateNotifier<AuditSessionState> {
 
       final savedPath = saveResult.valueOrNull!;
 
-      // 4. Create AuditImage
+      // 6. Create AuditImage
       final auditImage = AuditImage(
         localPath: savedPath,
-        tags: tags,
+        tags: normalizedTags,
         fileName: fileName,
       );
 
-      // 5. Register tags in repository
-      if (tags.isNotEmpty) {
-        await _tagRepository.registerTags(tags);
+      // 7. Register tags in repository
+      if (normalizedTags.isNotEmpty) {
+        final tagResult = await _tagRepository.registerTags(normalizedTags);
+        // Log error if tag registration fails, but don't fail photo capture
+        // Tags are saved in memory and will be lost on restart, but photo is more important
+        if (tagResult.isFailure) {
+          // Could log to analytics/crashlytics in production
+          // For now, silently continue - photo capture succeeded
+        }
       }
 
-      // 6. Add image to session
+      // 8. Add image to session
       final updatedSession = state.session!.addImage(auditImage);
       state = state.copyWith(
         session: updatedSession,

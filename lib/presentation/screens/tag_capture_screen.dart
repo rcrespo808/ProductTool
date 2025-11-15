@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/providers.dart';
-import '../../application/audit/audit_session_notifier.dart';
+import '../../core/util/result.dart';
+import '../../domain/models/file_naming.dart';
 import '../widgets/tag_chip_cloud.dart';
 import '../widgets/tag_autocomplete_input.dart';
 
@@ -15,25 +16,68 @@ class TagCaptureScreen extends ConsumerStatefulWidget {
 class _TagCaptureScreenState extends ConsumerState<TagCaptureScreen> {
   final List<String> _selectedTags = [];
 
+  /// Checks if a tag already exists (case-insensitive)
+  bool _hasTag(List<String> tags, String newTag) {
+    final normalized = FileNaming.normalizeTag(newTag);
+    return tags.any((t) => FileNaming.normalizeTag(t) == normalized);
+  }
+
   void _addTag(String tag) {
     setState(() {
-      if (!_selectedTags.contains(tag)) {
-        _selectedTags.add(tag);
+      final normalizedTag = FileNaming.normalizeTag(tag);
+      if (normalizedTag.isNotEmpty && !_hasTag(_selectedTags, normalizedTag)) {
+        _selectedTags.add(normalizedTag);
       }
     });
   }
 
   void _removeTag(String tag) {
     setState(() {
-      _selectedTags.remove(tag);
+      // Remove tag by normalized comparison
+      final normalizedTag = FileNaming.normalizeTag(tag);
+      _selectedTags.removeWhere((t) => FileNaming.normalizeTag(t) == normalizedTag);
     });
   }
 
   void _toggleTag(String tag) {
-    if (_selectedTags.contains(tag)) {
+    if (_hasTag(_selectedTags, tag)) {
       _removeTag(tag);
     } else {
       _addTag(tag);
+    }
+  }
+
+  /// Saves tags to repository without capturing photo
+  Future<void> _saveTags() async {
+    if (_selectedTags.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No tags to save')),
+      );
+      return;
+    }
+
+    final tagRepo = ref.read(tagRepositoryProvider);
+    final result = await tagRepo.registerTags(_selectedTags);
+
+    if (mounted) {
+      if (result.isSuccess) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Tags saved successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              result.errorMessage ?? 'Error saving tags',
+            ),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      }
     }
   }
 
@@ -122,7 +166,7 @@ class _TagCaptureScreenState extends ConsumerState<TagCaptureScreen> {
                 // Session info
                 Container(
                   padding: const EdgeInsets.all(16),
-                  color: Theme.of(context).colorScheme.surfaceVariant,
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
@@ -203,30 +247,51 @@ class _TagCaptureScreenState extends ConsumerState<TagCaptureScreen> {
                   ),
                 ),
 
-                // Capture button
+                // Action buttons
                 Padding(
                   padding: const EdgeInsets.all(16.0),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed:
-                          sessionState.isLoading ? null : _capturePhoto,
-                      icon: sessionState.isLoading
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Icon(Icons.camera_alt),
-                      label: Text(
-                        sessionState.isLoading
-                            ? 'Capturing...'
-                            : 'Capture Photo',
+                  child: Column(
+                    children: [
+                      // Save Tags button (if tags are selected)
+                      if (_selectedTags.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8.0),
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton.icon(
+                              onPressed: sessionState.isLoading ? null : _saveTags,
+                              icon: const Icon(Icons.save),
+                              label: const Text('Save Tags'),
+                              style: OutlinedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                              ),
+                            ),
+                          ),
+                        ),
+                      // Capture Photo button
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed:
+                              sessionState.isLoading ? null : _capturePhoto,
+                          icon: sessionState.isLoading
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                )
+                              : const Icon(Icons.camera_alt),
+                          label: Text(
+                            sessionState.isLoading
+                                ? 'Capturing...'
+                                : 'Capture Photo',
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                          ),
+                        ),
                       ),
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                      ),
-                    ),
+                    ],
                   ),
                 ),
               ],

@@ -4,9 +4,6 @@
 /// - Web: Uses dart:html browser download API
 library;
 
-import 'local_storage_service.dart';
-import '../util/result.dart';
-
 // Conditional imports: web gets web implementation, others get mobile
 export 'local_storage_impl_stub.dart'
     if (dart.library.io) 'local_storage_impl_mobile.dart'
