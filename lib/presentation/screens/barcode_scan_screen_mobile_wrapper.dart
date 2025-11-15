@@ -73,15 +73,22 @@ class _WebBarcodeEntryState extends ConsumerState<_WebBarcodeEntry> {
               color: Theme.of(context).colorScheme.primary,
             ),
             const SizedBox(height: 24),
-            const Text(
+            Text(
               'Barcode Scanner',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Web platform does not support camera barcode scanning.\nPlease enter the barcode manually.',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16, color: Colors.grey),
+              style: TextStyle(
+                fontSize: 16,
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+              ),
             ),
             const SizedBox(height: 32),
             TextField(

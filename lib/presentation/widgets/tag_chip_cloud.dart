@@ -34,7 +34,12 @@ class TagChipCloud extends ConsumerWidget {
         return FilterChip(
           label: Text(
             suggestion.tag,
-            style: TextStyle(fontSize: fontSize),
+            style: TextStyle(
+              fontSize: fontSize,
+              color: isSelected
+                  ? Theme.of(context).colorScheme.onPrimaryContainer
+                  : Theme.of(context).colorScheme.onSurface,
+            ),
           ),
           selected: isSelected,
           onSelected: (_) => onTagTap(suggestion.tag),

@@ -160,7 +160,14 @@ class _TagCaptureScreenState extends ConsumerState<TagCaptureScreen> {
         ],
       ),
       body: sessionState.session == null
-          ? const Center(child: Text('No active session'))
+          ? Center(
+              child: Text(
+                'No active session',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+            )
           : Column(
               children: [
                 // Session info
@@ -200,11 +207,12 @@ class _TagCaptureScreenState extends ConsumerState<TagCaptureScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'Selected Tags:',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -230,11 +238,12 @@ class _TagCaptureScreenState extends ConsumerState<TagCaptureScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'Suggestions:',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -315,17 +324,21 @@ class _InfoChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Icon(icon, size: 24),
+        Icon(icon, size: 24, color: Theme.of(context).colorScheme.onSurface),
         const SizedBox(height: 4),
         Text(
           label,
-          style: const TextStyle(fontSize: 12),
+          style: TextStyle(
+            fontSize: 12,
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+          ),
         ),
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
       ],
