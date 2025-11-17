@@ -16,10 +16,8 @@ This tool enables field auditors to:
 - **[PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md)** - Project purpose, workflow, and constraints
 - **[TECH_STRUCTURE.md](TECH_STRUCTURE.md)** - Architecture, folder structure, and abstractions
 - **[IMPLEMENTATION_CHECKLIST.md](IMPLEMENTATION_CHECKLIST.md)** - Implementation status and checklist
-- **[SETUP_GUIDE.md](SETUP_GUIDE.md)** - Detailed setup instructions for mobile platforms
-- **[SETUP_FLUTTER.md](SETUP_FLUTTER.md)** - Flutter installation guide for Windows
+- **[QUICK_START.md](QUICK_START.md)** - Quick start guide with Flutter installation and setup
 - **[WEB.md](WEB.md)** - Web platform support and testing
-- **[QUICK_START.md](QUICK_START.md)** - Quick start guide (5 minutes)
 - **[MANUAL_TESTING.md](MANUAL_TESTING.md)** - Manual testing guide
 - **[TEST_PLAN.md](TEST_PLAN.md)** - Testing strategy and requirements
 
@@ -31,13 +29,13 @@ This tool enables field auditors to:
 - Android Studio / VS Code with Flutter extensions
 
 ### Setup
-1. **Install Flutter** (if needed): See [SETUP_FLUTTER.md](SETUP_FLUTTER.md)
+1. **Install Flutter** (if needed): See [QUICK_START.md](QUICK_START.md) for installation instructions
 2. **Install dependencies**: `flutter pub get`
 3. **Create platform folders** (if needed): `flutter create .`
-4. **Configure permissions**: See [SETUP_GUIDE.md](SETUP_GUIDE.md) for Android/iOS
+4. **Configure permissions**: See [QUICK_START.md](QUICK_START.md) for Android/iOS permissions
 5. **Run the app**: `flutter run` (mobile) or `flutter run -d chrome` (web)
 
-For detailed setup instructions, see [SETUP_GUIDE.md](SETUP_GUIDE.md) or [QUICK_START.md](QUICK_START.md).  
+For detailed setup instructions, see [QUICK_START.md](QUICK_START.md).  
 For web setup, see [WEB.md](WEB.md).
 
 ### Testing

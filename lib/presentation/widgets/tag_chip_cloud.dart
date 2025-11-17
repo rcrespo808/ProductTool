@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/providers.dart';
+import '../../providers/providers.dart';
 
 /// Widget that displays tags as chips in a cloud layout
 /// Tags are sized by usage frequency
@@ -50,4 +50,3 @@ class TagChipCloud extends ConsumerWidget {
     );
   }
 }
-

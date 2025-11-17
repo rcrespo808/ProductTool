@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/providers.dart';
-import '../../core/util/result.dart';
+import '../../providers/providers.dart';
+import '../../utils/result.dart';
 import '../../domain/models/file_naming.dart';
 import '../widgets/tag_chip_cloud.dart';
 import '../widgets/tag_autocomplete_input.dart';
+import '../widgets/components/session_info_bar.dart';
+import '../widgets/components/selected_tags_section.dart';
+import '../widgets/components/tag_action_buttons.dart';
 
 class TagCaptureScreen extends ConsumerStatefulWidget {
   const TagCaptureScreen({super.key});
@@ -35,7 +38,8 @@ class _TagCaptureScreenState extends ConsumerState<TagCaptureScreen> {
     setState(() {
       // Remove tag by normalized comparison
       final normalizedTag = FileNaming.normalizeTag(tag);
-      _selectedTags.removeWhere((t) => FileNaming.normalizeTag(t) == normalizedTag);
+      _selectedTags
+          .removeWhere((t) => FileNaming.normalizeTag(t) == normalizedTag);
     });
   }
 
@@ -171,24 +175,9 @@ class _TagCaptureScreenState extends ConsumerState<TagCaptureScreen> {
           : Column(
               children: [
                 // Session info
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      _InfoChip(
-                        icon: Icons.qr_code,
-                        label: 'Barcode',
-                        value: sessionState.barcode ?? 'Unknown',
-                      ),
-                      _InfoChip(
-                        icon: Icons.photo_library,
-                        label: 'Photos',
-                        value: '${sessionState.imageCount}',
-                      ),
-                    ],
-                  ),
+                SessionInfoBar(
+                  barcode: sessionState.barcode,
+                  imageCount: sessionState.imageCount,
                 ),
 
                 // Tag autocomplete input
@@ -201,35 +190,10 @@ class _TagCaptureScreenState extends ConsumerState<TagCaptureScreen> {
                 ),
 
                 // Selected tags
-                if (_selectedTags.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Selected Tags:',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                            color: Theme.of(context).colorScheme.onSurface,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: _selectedTags.map((tag) {
-                            return Chip(
-                              label: Text(tag),
-                              onDeleted: () => _removeTag(tag),
-                            );
-                          }).toList(),
-                        ),
-                        const SizedBox(height: 16),
-                      ],
-                    ),
-                  ),
+                SelectedTagsSection(
+                  tags: _selectedTags,
+                  onTagRemoved: _removeTag,
+                ),
 
                 // Tag chip cloud
                 Expanded(
@@ -257,92 +221,14 @@ class _TagCaptureScreenState extends ConsumerState<TagCaptureScreen> {
                 ),
 
                 // Action buttons
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      // Save Tags button (if tags are selected)
-                      if (_selectedTags.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 8.0),
-                          child: SizedBox(
-                            width: double.infinity,
-                            child: OutlinedButton.icon(
-                              onPressed: sessionState.isLoading ? null : _saveTags,
-                              icon: const Icon(Icons.save),
-                              label: const Text('Save Tags'),
-                              style: OutlinedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 16),
-                              ),
-                            ),
-                          ),
-                        ),
-                      // Capture Photo button
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton.icon(
-                          onPressed:
-                              sessionState.isLoading ? null : _capturePhoto,
-                          icon: sessionState.isLoading
-                              ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(strokeWidth: 2),
-                                )
-                              : const Icon(Icons.camera_alt),
-                          label: Text(
-                            sessionState.isLoading
-                                ? 'Capturing...'
-                                : 'Capture Photo',
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                TagActionButtons(
+                  selectedTags: _selectedTags,
+                  isLoading: sessionState.isLoading,
+                  onSaveTags: _saveTags,
+                  onCapturePhoto: _capturePhoto,
                 ),
               ],
             ),
     );
   }
 }
-
-class _InfoChip extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-
-  const _InfoChip({
-    required this.icon,
-    required this.label,
-    required this.value,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Icon(icon, size: 24, color: Theme.of(context).colorScheme.onSurface),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
-          ),
-        ),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
-        ),
-      ],
-    );
-  }
-}
-

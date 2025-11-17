@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/providers.dart';
+import '../../providers/providers.dart';
 import 'tag_capture_screen.dart';
 
 /// Mobile implementation of barcode scanner using mobile_scanner
@@ -110,4 +110,3 @@ class _BarcodeScanScreenMobileState
     );
   }
 }
-

@@ -23,9 +23,7 @@ All project documentation is located in the root directory alongside `lib/` and 
 
 | File | Purpose | When to Read |
 |------|---------|--------------|
-| **`SETUP_GUIDE.md`** | Detailed platform-specific setup (Android/iOS) | Before setting up development environment |
-| **`SETUP_FLUTTER.md`** | Flutter SDK installation for Windows | When installing Flutter for the first time |
-| **`QUICK_START.md`** | 5-minute quick start guide | For rapid onboarding |
+| **`QUICK_START.md`** | Quick start guide with Flutter installation and setup | Start here - Complete setup instructions for all platforms |
 | **`WEB.md`** | Web platform support and limitations | When working on web-specific features |
 
 #### Testing & Quality
@@ -41,7 +39,6 @@ All project documentation is located in the root directory alongside `lib/` and 
 | File | Purpose | When to Read |
 |------|---------|--------------|
 | **`ENDPOINT_UPDATE_IMAGES_BY_EAN.md`** | Backend endpoint specification | When implementing backend integration |
-| **`lib/core/storage/ENDPOINT_UPDATE_IMAGES_BY_EAN.md`** | Duplicate/backup of endpoint docs | Same as above (may be removed later) |
 
 ---
 
@@ -54,55 +51,63 @@ ProductTool/
 ├── lib/
 │   ├── main.dart                 # App entry point, theme configuration
 │   │
-│   ├── core/                     # Core services & abstractions
-│   │   ├── api/
-│   │   │   └── audit_api_client.dart       # Backend API abstraction (fake impl exists)
-│   │   ├── auth/                 # Authentication (not yet implemented)
-│   │   ├── barcode/
-│   │   │   ├── barcode_scanner_service.dart
-│   │   │   └── barcode_scanner_impl.dart
-│   │   ├── camera/
-│   │   │   ├── camera_service.dart
-│   │   │   └── camera_service_impl.dart
-│   │   ├── config/               # API configuration (not yet implemented)
-│   │   ├── providers.dart        # Riverpod provider definitions
-│   │   ├── storage/
-│   │   │   ├── local_storage_service.dart
-│   │   │   ├── local_storage_impl_mobile.dart
-│   │   │   ├── local_storage_impl_web.dart
-│   │   │   └── local_storage_impl_stub.dart
-│   │   ├── upload/               # Image upload service (not yet implemented)
-│   │   └── util/
-│   │       └── result.dart       # Result<T> error handling pattern
+│   ├── presentation/             # Flutter UI layer
+│   │   ├── screens/
+│   │   │   ├── home_screen.dart
+│   │   │   ├── barcode_scan_screen.dart (platform router)
+│   │   │   ├── barcode_scan_screen_mobile.dart
+│   │   │   ├── barcode_scan_screen_mobile_wrapper.dart
+│   │   │   ├── barcode_scan_screen_web.dart
+│   │   │   └── tag_capture_screen.dart
+│   │   └── widgets/
+│   │       ├── components/       # Reusable UI components
+│   │       │   ├── info_chip.dart
+│   │       │   ├── session_info_bar.dart
+│   │       │   ├── selected_tags_section.dart
+│   │       │   └── tag_action_buttons.dart
+│   │       ├── tag_autocomplete_input.dart
+│   │       └── tag_chip_cloud.dart
 │   │
-│   ├── domain/                   # Business logic & models
+│   ├── providers/                # Riverpod state management
+│   │   ├── audit/
+│   │   │   └── audit_session_notifier.dart  # Main session state logic
+│   │   ├── tags/
+│   │   │   └── tag_suggestions_notifier.dart
+│   │   └── providers.dart        # Provider definitions
+│   │
+│   ├── domain/                   # Pure business logic (no Flutter)
 │   │   ├── models/
 │   │   │   ├── audit_image.dart
 │   │   │   ├── audit_session.dart
 │   │   │   ├── file_naming.dart  # File naming utilities & sanitization
 │   │   │   └── api/              # API request/response models (not yet implemented)
 │   │   └── tags/
+│   │       └── tag_trie.dart     # Pure tag trie data structure
+│   │
+│   ├── data/                     # Data layer (repositories & API clients, no Flutter)
+│   │   ├── api/
+│   │   │   └── audit_api_client.dart  # Backend API abstraction (fake impl exists)
+│   │   └── repositories/
 │   │       ├── tag_repository.dart
-│   │       └── tag_trie.dart
+│   │       ├── local_storage_service.dart
+│   │       ├── local_storage_impl_mobile.dart
+│   │       ├── local_storage_impl_web.dart
+│   │       ├── local_storage_impl_stub.dart
+│   │       └── local_storage_impl.dart
 │   │
-│   ├── application/              # Application layer (state management)
-│   │   ├── audit/
-│   │   │   └── audit_session_notifier.dart  # Main session state logic
-│   │   └── tags/
-│   │       └── tag_suggestions_notifier.dart
+│   ├── services/                 # Cross-cutting services (no Flutter)
+│   │   └── core/
+│   │       ├── camera_service.dart
+│   │       ├── camera_service_impl.dart
+│   │       ├── barcode_scanner_service.dart
+│   │       └── barcode_scanner_impl.dart
 │   │
-│   └── presentation/             # UI layer
-│       ├── screens/
-│       │   ├── home_screen.dart
-│       │   ├── barcode_scan_screen.dart (platform router)
-│       │   ├── barcode_scan_screen_mobile.dart
-│       │   ├── barcode_scan_screen_mobile_wrapper.dart
-│       │   ├── barcode_scan_screen_web.dart
-│       │   └── tag_capture_screen.dart
-│       └── widgets/
-│           ├── tag_autocomplete_input.dart
-│           └── tag_chip_cloud.dart
+│   └── utils/                    # Pure utilities
+│       └── result.dart           # Result<T> error handling pattern
 │
+├── docs/                         # Documentation
+│   └── structure/
+│       └── REFMAP-20250127.md   # Refactoring map (file moves)
 ├── test/                         # Unit & widget tests (currently empty)
 ├── web/                          # Web-specific configuration
 └── [documentation .md files]
@@ -201,7 +206,7 @@ Contains prioritized issues and recommendations:
 - **Overview**: `PROJECT_OVERVIEW.md` → "Naming Convention" section
 - **Detailed Audit**: `TAGGING_NAMING_AUDIT.md`
 - **Implementation**: `lib/domain/models/file_naming.dart`
-- **Usage**: `lib/application/audit/audit_session_notifier.dart`
+- **Usage**: `lib/providers/audit/audit_session_notifier.dart`
 
 ### Tag System & Trie
 - **Overview**: `PROJECT_OVERVIEW.md` → "Tag System" section
@@ -211,13 +216,13 @@ Contains prioritized issues and recommendations:
 
 ### State Management
 - **Architecture**: `TECH_STRUCTURE.md` → "Providers" section
-- **Providers**: `lib/core/providers.dart`
-- **Application Logic**: `lib/application/`
+- **Providers**: `lib/providers/providers.dart`
+- **Application Logic**: `lib/providers/` (audit/, tags/)
 
 ### Platform-Specific Code
 - **Web Support**: `WEB.md`
-- **Setup**: `SETUP_GUIDE.md` for mobile, `WEB.md` for web
-- **Implementation**: Conditional imports in `lib/core/storage/`, `lib/core/camera/`, etc.
+- **Setup**: `QUICK_START.md` for all platforms, `WEB.md` for web-specific details
+- **Implementation**: Conditional imports in `lib/data/repositories/`, `lib/services/core/`, etc.
 
 ---
 
@@ -234,7 +239,7 @@ Contains prioritized issues and recommendations:
 
 1. ✅ Follow existing code patterns and abstractions
 2. ✅ Use `Result<T>` pattern for error handling
-3. ✅ Add providers in `lib/core/providers.dart`
+3. ✅ Add providers in `lib/providers/providers.dart`
 4. ✅ Keep services abstracted (interface + implementation)
 5. ✅ Update `IMPLEMENTATION_CHECKLIST.md` when tasks complete
 
@@ -283,7 +288,7 @@ Contains prioritized issues and recommendations:
 
 ### From Codebase Patterns
 
-- Error handling: Use `Result<T>` from `lib/core/util/result.dart`
+- Error handling: Use `Result<T>` from `lib/utils/result.dart`
 - Platform detection: Use conditional imports
 - Service pattern: Abstract interface + implementation(s)
 - State management: Riverpod `StateNotifier` for complex state
@@ -305,7 +310,7 @@ Contains prioritized issues and recommendations:
 - **Tag System**: `PROJECT_OVERVIEW.md` + `lib/domain/tags/`
 - **File Naming**: `PROJECT_OVERVIEW.md` + `lib/domain/models/file_naming.dart`
 - **UI Components**: `TECH_STRUCTURE.md` + `lib/presentation/`
-- **API Integration**: `ENDPOINT_UPDATE_IMAGES_BY_EAN.md` + `lib/core/api/`
+- **API Integration**: `ENDPOINT_UPDATE_IMAGES_BY_EAN.md` + `lib/data/api/`
 
 ---
 
@@ -343,10 +348,11 @@ See `TAGGING_NAMING_AUDIT.md` for comprehensive issue list:
 → Check `TEST_PLAN.md` first
 
 ### For Setup Issues
-→ Check `SETUP_GUIDE.md` or `QUICK_START.md`
+→ Check `QUICK_START.md`
 
 ---
 
 **Last Updated**: 2025-01-27  
 **Project Phase**: Iteration 1 Complete, Iteration 2 In Progress
+
 

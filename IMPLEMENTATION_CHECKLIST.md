@@ -156,3 +156,68 @@ Status of implementation for Iteration 1 of the Product Audit Tool.
 - Backend API integration (real upload)
 - UI enhancements and animations
 - Additional testing and polish
+
+---
+
+# 12. Code Structure Restructuring (/menatto)
+
+## Module 1: Utils Module
+- [x] Run `/menatto` on `lib/core/util/` → `lib/utils/`
+- [x] Move `core/util/result.dart` to `utils/result.dart`
+- [x] Update all imports referencing `core/util/result.dart` (12 files updated)
+- [x] Verify no Flutter imports in utils/
+- [x] Run `flutter analyze` and fix any errors ✅
+
+## Module 2: Services Module
+- [x] Run `/menatto` on `lib/core/camera/` and `lib/core/barcode/` → `lib/services/core/`
+- [x] Move camera service files to `services/core/` (2 files)
+- [x] Move barcode scanner files to `services/core/` (2 files)
+- [x] Update all imports (2 external files: providers.dart, audit_session_notifier.dart)
+- [x] Verify no Flutter imports in services/
+- [x] Run `flutter analyze` and fix any errors ✅
+
+## Module 3: Data Module
+- [x] Run `/menatto` on `lib/core/api/`, `lib/core/storage/`, and `lib/domain/tags/tag_repository.dart` → `lib/data/`
+- [x] Move API client to `data/api/` (1 file)
+- [x] Move storage services to `data/repositories/` (5 files)
+- [x] Move TagRepository from `domain/tags/` to `data/repositories/` ✅ **CRITICAL FIX** (fixes Flutter import violation)
+- [x] Update all imports (4 files: providers.dart, audit_session_notifier.dart, tag_suggestions_notifier.dart, tag_repository.dart)
+- [x] Verify no Flutter imports in domain/ ✅ (domain is now pure)
+- [x] Run `flutter analyze` and fix any errors ✅
+
+## Module 4: Domain Module
+- [x] Run `/menatto` on `lib/domain/`
+- [x] Verify TagRepository moved to data/ (from Module 3) ✅ **CONFIRMED**
+- [x] Ensure domain/ contains only pure business logic models ✅
+- [x] Verify no Flutter imports remain in domain/ ✅ **0 Flutter imports found**
+- [x] Update any remaining imports ✅ (No changes needed - all imports correct)
+- [x] Run `flutter analyze` and fix any errors ✅ (Verification complete - domain is pure)
+
+## Module 5: Providers Module
+- [x] Run `/menatto` on `lib/application/` → `lib/providers/`
+- [x] Rename `application/` directory to `providers/` (moved files)
+- [x] Move provider definitions from `core/providers.dart` to `providers/providers.dart`
+- [x] Update all imports referencing `application/` or `core/providers.dart` (7 files updated)
+- [x] Verify all Riverpod providers are in `providers/` ✅
+- [x] Run `flutter analyze` and fix any errors ✅
+
+## Module 6: Providers Registration
+- [x] Merge provider definitions from `core/providers.dart` into `providers/providers.dart` ✅ (completed in Module 5)
+- [x] Delete `core/providers.dart` after moving content ✅ (deleted)
+- [x] Update all imports ✅ (completed in Module 5)
+- [x] Run `flutter analyze` and fix any errors ✅ (no errors)
+
+## Module 7: Presentation Module
+- [x] Run `/menatto` on `lib/presentation/`
+- [x] Split `tag_capture_screen.dart` (352 → 234 lines) into smaller components ✅
+- [x] Extract components to `presentation/widgets/components/` ✅ (4 components created)
+- [x] Verify all screens are ≤300 lines, widgets ≤200 lines ✅
+- [x] Update imports if needed ✅ (1 file updated)
+- [x] Run `flutter analyze` and fix any errors ✅ (2 info-level deprecation warnings, unrelated)
+
+## Module 8: Structure Documentation
+- [x] Update `TECH_STRUCTURE.md` with new folder structure ✅
+- [x] Create refactor map `docs/structure/REFMAP-YYYYMMDD.md` listing old → new paths ✅ (REFMAP-20250127.md created)
+- [x] Update `agents.md` with new structure references ✅
+- [x] Run `flutter analyze` and verify no errors ✅ (3 info-level deprecation warnings, unrelated)
+- [x] Run tests and update golden files if needed ✅ (no tests require updates)

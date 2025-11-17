@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/providers.dart';
+import '../../providers/providers.dart';
 
 /// Widget that provides autocomplete for tag input
 class TagAutocompleteInput extends ConsumerStatefulWidget {
@@ -49,7 +49,8 @@ class _TagAutocompleteInputState extends ConsumerState<TagAutocompleteInput> {
           ),
           onSubmitted: (value) {
             onFieldSubmitted();
-            if (value.trim().isNotEmpty && !widget.existingTags.contains(value.trim())) {
+            if (value.trim().isNotEmpty &&
+                !widget.existingTags.contains(value.trim())) {
               widget.onTagAdded(value.trim());
               textEditingController.clear();
               ref.read(tagSuggestionsProvider.notifier).updateQuery('');
@@ -68,8 +69,9 @@ class _TagAutocompleteInputState extends ConsumerState<TagAutocompleteInput> {
 
         // Show matching suggestions
         return suggestionsState.suggestions
-            .where((s) =>
-                s.tag.toLowerCase().contains(textEditingValue.text.toLowerCase()))
+            .where((s) => s.tag
+                .toLowerCase()
+                .contains(textEditingValue.text.toLowerCase()))
             .map((s) => s.tag)
             .where((tag) => !widget.existingTags.contains(tag));
       },
@@ -83,4 +85,3 @@ class _TagAutocompleteInputState extends ConsumerState<TagAutocompleteInput> {
     );
   }
 }
-
