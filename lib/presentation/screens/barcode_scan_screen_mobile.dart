@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/providers.dart';
-import 'tag_capture_screen.dart';
+import 'photo_capture_screen.dart';
 
 /// Mobile implementation of barcode scanner using mobile_scanner
 /// This file is only imported on non-web platforms
@@ -43,11 +43,11 @@ class _BarcodeScanScreenMobileState
     // Start session
     ref.read(auditSessionProvider.notifier).startSession(barcode);
 
-    // Navigate to tag capture screen
+    // Navigate to photo capture screen
     if (mounted) {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) => const TagCaptureScreen(),
+          builder: (context) => const PhotoCaptureScreen(),
         ),
       );
     }

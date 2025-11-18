@@ -323,10 +323,9 @@ lib/
 
 ## Next Steps
 
-- See [MANUAL_TESTING.md](MANUAL_TESTING.md) for comprehensive testing
-- See [TEST_PLAN.md](TEST_PLAN.md) for testing strategy
+- See [TEST_PLAN.md](TEST_PLAN.md) for testing strategy and manual testing scenarios
 - For web setup and testing, see [WEB.md](WEB.md)
-- Review [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md) for project details
+- Review [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md) for project details and implementation status
 - Check [TECH_STRUCTURE.md](TECH_STRUCTURE.md) for architecture
 
 ## Resources

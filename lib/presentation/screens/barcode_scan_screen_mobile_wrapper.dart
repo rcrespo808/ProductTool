@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/providers.dart';
-import 'tag_capture_screen.dart';
+import 'photo_capture_screen.dart';
 
 // Import mobile implementation only on non-web platforms
 import 'barcode_scan_screen_mobile.dart'
@@ -47,7 +47,7 @@ class _WebBarcodeEntryState extends ConsumerState<_WebBarcodeEntry> {
 
     if (mounted) {
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const TagCaptureScreen()),
+        MaterialPageRoute(builder: (_) => const PhotoCaptureScreen()),
       );
     }
   }

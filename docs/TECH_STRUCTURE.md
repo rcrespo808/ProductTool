@@ -17,41 +17,35 @@ lib/
 │   │   ├── barcode_scan_screen_mobile.dart
 │   │   ├── barcode_scan_screen_mobile_wrapper.dart
 │   │   ├── barcode_scan_screen_web.dart
-│   │   └── tag_capture_screen.dart
+│   │   └── photo_capture_screen.dart
 │   └── widgets/
-│       ├── components/        # Reusable UI components
-│       │   ├── info_chip.dart
-│       │   ├── session_info_bar.dart
-│       │   ├── selected_tags_section.dart
-│       │   └── tag_action_buttons.dart
-│       ├── tag_chip_cloud.dart
-│       └── tag_autocomplete_input.dart
+│       └── components/        # Reusable UI components
+│           ├── info_chip.dart
+│           └── session_info_bar.dart
 │
 ├── providers/                 # Riverpod state management
 │   ├── audit/
 │   │   └── audit_session_notifier.dart
-│   ├── tags/
-│   │   └── tag_suggestions_notifier.dart
 │   └── providers.dart         # Provider definitions
 │
 ├── domain/                    # Pure business logic (no Flutter)
-│   ├── models/
-│   │   ├── audit_image.dart
-│   │   ├── audit_session.dart
-│   │   └── file_naming.dart
-│   └── tags/
-│       └── tag_trie.dart
+│   └── models/
+│       ├── audit_image.dart
+│       ├── audit_session.dart
+│       ├── audit_session_status.dart
+│       └── file_naming.dart
 │
 ├── data/                      # Data layer (repositories & API clients, no Flutter)
 │   ├── api/
 │   │   └── audit_api_client.dart
 │   └── repositories/
-│       ├── tag_repository.dart
 │       ├── local_storage_service.dart
 │       ├── local_storage_impl_mobile.dart
 │       ├── local_storage_impl_web.dart
 │       ├── local_storage_impl_stub.dart
-│       └── local_storage_impl.dart
+│       ├── local_storage_impl.dart
+│       ├── session_repository.dart
+│       └── session_repository_impl.dart
 │
 ├── services/                  # Cross-cutting services (no Flutter)
 │   └── core/
@@ -89,12 +83,10 @@ final localStorageProvider = Provider<LocalStorageService>((ref) {
 });
 ```
 
-### Tag repository
+### Session repository
 ```dart
-final tagRepositoryProvider = Provider<TagRepository>((ref) {
-  final repo = TagRepositoryImpl();
-  repo.load();
-  return repo;
+final sessionRepositoryProvider = Provider<SessionRepository>((ref) {
+  return SessionRepositoryImpl();
 });
 ```
 
@@ -107,16 +99,9 @@ final auditSessionProvider =
     return AuditSessionNotifier(
       ref.watch(cameraServiceProvider),
       ref.watch(localStorageProvider),
-      ref.watch(tagRepositoryProvider),
+      ref.watch(sessionRepositoryProvider),
+      ref.watch(auditApiClientProvider),
     );
-});
-```
-
-### Tag suggestions
-```dart
-final tagSuggestionsProvider =
-  StateNotifierProvider<TagSuggestionsNotifier, TagSuggestionsState>((ref) {
-    return TagSuggestionsNotifier(ref.watch(tagRepositoryProvider));
 });
 ```
 
@@ -148,11 +133,22 @@ Future<void> uploadSession(AuditSession session)
 
 ## Domain Models
 
+### AuditSessionStatus
+```dart
+enum AuditSessionStatus {
+  inProgress,
+  completed,
+}
+```
+
 ### AuditSession
 ```dart
 class AuditSession {
   String barcode;
   List<AuditImage> images;
+  AuditSessionStatus status;
+  DateTime createdAt;
+  DateTime? completedAt;
 }
 ```
 
@@ -160,17 +156,20 @@ class AuditSession {
 ```dart
 class AuditImage {
   String localPath;
-  List<String> tags;
   String fileName;
+  int index;  // 1-based index used in filename
+  DateTime createdAt;
 }
 ```
 
-### Tag Trie
-- Insert tags
-- Suggest prefix matches
-- Usage count for relevance
-- JSON serialization
-- Backed by local persistence (SharedPreferences)
+### SessionRepository
+```dart
+abstract class SessionRepository {
+  Future<Result<void>> saveSession(AuditSession session);
+  Future<Result<List<AuditSession>>> getAllSessions();
+  Future<Result<List<AuditSession>>> getCompletedSessions();
+}
+```
 
 ---
 
@@ -212,4 +211,4 @@ class AuditImage {
 - Moved `domain/tags/tag_repository.dart` → `data/repositories/` (removed Flutter dependency from domain)
 - Split `tag_capture_screen.dart` into components
 
-**Full refactor map:** See `docs/structure/REFMAP-20250127.md` for complete migration details.
+**Refactoring completed:** All files restructured to match intended architecture (2025-01-27).

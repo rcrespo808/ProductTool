@@ -2,10 +2,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../domain/models/audit_session.dart';
 import '../../domain/models/audit_image.dart';
+import '../../domain/models/audit_session_status.dart';
 import '../../domain/models/file_naming.dart';
-import '../../data/repositories/tag_repository.dart';
 import '../../services/core/camera_service.dart';
 import '../../data/repositories/local_storage_service.dart';
+import '../../data/repositories/session_repository.dart';
 import '../../data/api/audit_api_client.dart';
 import '../../utils/result.dart';
 
@@ -41,13 +42,13 @@ class AuditSessionState {
 class AuditSessionNotifier extends StateNotifier<AuditSessionState> {
   final CameraService _cameraService;
   final LocalStorageService _storageService;
-  final TagRepository _tagRepository;
+  final SessionRepository _sessionRepository;
   final AuditApiClient _apiClient;
 
   AuditSessionNotifier(
     this._cameraService,
     this._storageService,
-    this._tagRepository,
+    this._sessionRepository,
     this._apiClient,
   ) : super(const AuditSessionState());
 
@@ -94,21 +95,41 @@ class AuditSessionNotifier extends StateNotifier<AuditSessionState> {
   }
 
   /// Starts a new audit session with a barcode
-  void startSession(String barcode) {
+  /// If there's an in-progress session, it will be auto-completed first
+  void startSession(String barcode) async {
     if (barcode.trim().isEmpty) {
       state = state.copyWith(error: 'Barcode cannot be empty');
       return;
     }
 
-    final session = AuditSession(barcode: barcode.trim());
+    // Auto-complete existing in-progress session if any
+    if (state.session != null && 
+        state.session!.status == AuditSessionStatus.inProgress) {
+      // Only complete if it has at least one image
+      if (state.session!.imageCount > 0) {
+        await _finishCurrentSession(silent: true);
+      } else {
+        // Clear empty session silently
+        state = const AuditSessionState();
+      }
+    }
+
+    // Create new session with inProgress status
+    final now = DateTime.now();
+    final session = AuditSession(
+      barcode: barcode.trim(),
+      status: AuditSessionStatus.inProgress,
+      createdAt: now,
+    );
+    
     state = state.copyWith(
       session: session,
       error: null,
     );
   }
 
-  /// Captures a photo and tags it, then saves to local storage
-  Future<void> captureTaggedPhoto(List<String> tags) async {
+  /// Captures a photo and saves it to local storage with sequential naming
+  Future<void> capturePhoto() async {
     if (state.session == null) {
       state = state.copyWith(error: 'No active session');
       return;
@@ -133,17 +154,13 @@ class AuditSessionNotifier extends StateNotifier<AuditSessionState> {
       // 2. Extract file extension from photo file
       final extension = _getFileExtension(photoFile);
 
-      // 3. Normalize tags for file naming (will also be used for storage)
-      final normalizedTags = tags
-          .map((tag) => FileNaming.normalizeTag(tag))
-          .where((tag) => tag.isNotEmpty)
-          .toList();
+      // 3. Calculate 1-based index (next photo index)
+      final nextIndex = state.session!.imageCount + 1;
 
-      // 4. Generate file name
+      // 4. Generate file name: {barcode}__{index}.jpg
       final fileName = FileNaming.generateFileName(
         barcode: state.session!.barcode,
-        index: state.session!.imageCount,
-        tags: normalizedTags,
+        index: nextIndex,
         extension: extension,
       );
 
@@ -162,26 +179,17 @@ class AuditSessionNotifier extends StateNotifier<AuditSessionState> {
       }
 
       final savedPath = saveResult.valueOrNull!;
+      final now = DateTime.now();
 
-      // 6. Create AuditImage
+      // 6. Create AuditImage with 1-based index and timestamp
       final auditImage = AuditImage(
         localPath: savedPath,
-        tags: normalizedTags,
         fileName: fileName,
+        index: nextIndex,
+        createdAt: now,
       );
 
-      // 7. Register tags in repository
-      if (normalizedTags.isNotEmpty) {
-        final tagResult = await _tagRepository.registerTags(normalizedTags);
-        // Log error if tag registration fails, but don't fail photo capture
-        // Tags are saved in memory and will be lost on restart, but photo is more important
-        if (tagResult.isFailure) {
-          // Could log to analytics/crashlytics in production
-          // For now, silently continue - photo capture succeeded
-        }
-      }
-
-      // 8. Add image to session
+      // 7. Add image to session
       final updatedSession = state.session!.addImage(auditImage);
       state = state.copyWith(
         session: updatedSession,
@@ -196,7 +204,63 @@ class AuditSessionNotifier extends StateNotifier<AuditSessionState> {
     }
   }
 
-  /// Clears the current session
+  /// Finishes the current session (marks as completed and persists)
+  /// Returns Result for error handling
+  Future<Result<void>> finishSession() async {
+    if (state.session == null) {
+      return const Failure('No active session');
+    }
+
+    if (state.session!.imageCount == 0) {
+      return const Failure('Cannot finish session with 0 images');
+    }
+
+    return await _finishCurrentSession(silent: false);
+  }
+
+  /// Internal method to finish current session
+  Future<Result<void>> _finishCurrentSession({required bool silent}) async {
+    if (state.session == null) {
+      return const Success(null);
+    }
+
+    state = state.copyWith(isLoading: true, error: null);
+
+    try {
+      final now = DateTime.now();
+      final completedSession = state.session!.copyWith(
+        status: AuditSessionStatus.completed,
+        completedAt: now,
+      );
+
+      // Save to repository
+      final saveResult = await _sessionRepository.saveSession(completedSession);
+
+      if (saveResult.isFailure) {
+        state = state.copyWith(
+          isLoading: false,
+          error: silent ? null : saveResult.errorMessage ?? 'Failed to save session',
+        );
+        return saveResult;
+      }
+
+      // Clear in-memory session
+      state = const AuditSessionState(isLoading: false);
+      return const Success(null);
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        error: silent ? null : 'Error finishing session: ${e.toString()}',
+      );
+      return Failure(
+        'Error finishing session: ${e.toString()}',
+        e,
+      );
+    }
+  }
+
+  /// Clears the current session (does not persist)
+  /// Used for canceling/abandoning a session
   void clearSession() {
     state = const AuditSessionState();
   }
